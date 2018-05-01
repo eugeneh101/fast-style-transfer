@@ -144,10 +144,12 @@ def main():
         options.vgg_path
     ]
 
+    import time
+    start_time = time.time()
     for preds, losses, i, epoch in optimize(*args, **kwargs):
         style_loss, content_loss, tv_loss, loss = losses
-
-        print('Epoch %d, Iteration: %d, Loss: %s' % (epoch, i, loss))
+        delta_time, start_time = time.time() - start_time, time.time()        
+        print('Epoch %d, Iteration: %d, Loss: %s, Time Elapse: %s' % (epoch, i, loss, delta_time))
         to_print = (style_loss, content_loss, tv_loss)
         print('style: %s, content:%s, tv: %s' % to_print)
         if options.test:
