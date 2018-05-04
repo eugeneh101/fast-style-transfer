@@ -152,6 +152,7 @@ def main():
         print('Epoch %d, Iteration: %d, Loss: %s, Time Elapse: %s' % (epoch, i, loss, delta_time))
         to_print = (style_loss, content_loss, tv_loss)
         print('style: %s, content:%s, tv: %s' % to_print)
+        sys.stdout.flush()
         if options.test:
             assert options.test_dir != False
             preds_path = '%s/%s_%s.png' % (options.test_dir,epoch,i)
