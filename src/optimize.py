@@ -13,7 +13,7 @@ DEVICES = 'CUDA_VISIBLE_DEVICES'
 def optimize(content_targets, style_target, content_weight, style_weight,
              tv_weight, vgg_path, epochs=2, print_iterations=1000,
              batch_size=4, save_path='saver/fns.ckpt', slow=False,
-             learning_rate=1e-3, debug=False):
+             learning_rate=1e-3, debug=False, device_and_number=False):
     if slow:
         batch_size = 1
     mod = len(content_targets) % batch_size
@@ -27,8 +27,17 @@ def optimize(content_targets, style_target, content_weight, style_weight,
     style_shape = (1,) + style_target.shape
     print(style_shape)
 
-    # precompute style features
-    with tf.Graph().as_default(), tf.Session() as sess: # removed tf.device('/gpu:0'), let system automatically detect available device 
+    # removed tf.device('/gpu:0'), let system automatically detect available device; this is no longer true
+    device_type, device_number = device_and_number.strip('/').split(':')
+    if device_type == 'gpu': # /gpu:0 means use GPU 0; /gpu:1 means use GPU 1; /gpu2: means use GPU2; etc.
+        import os
+        os.environ["CUDA_VISIBLE_DEVICES"] = device_number # starts at 0
+        session_conf = tf.ConfigProto() # session_conf.gpu_options.allow_growth = True # test if growth slows down training
+        # backprop doubles RAM usage
+        # takes 2.7 seconds/iter for batch size = 20 and 2.6 seconds to evaluate loss and save checkpoint
+    else: # /cpu:0 means use all CPUs; /cpu:1 means use 1 CPU; /cpu:2 means use 2 CPUs; etc.
+        session_conf = tf.ConfigProto(intra_op_parallelism_threads=int(device_number))
+    with tf.Graph().as_default(), tf.Session(config=session_conf) as sess: # precompute style features
         style_image = tf.placeholder(tf.float32, shape=style_shape, name='style_image')
         style_image_pre = vgg.preprocess(style_image)
         net = vgg.net(vgg_path, style_image_pre)
@@ -39,7 +48,7 @@ def optimize(content_targets, style_target, content_weight, style_weight,
             gram = np.matmul(features.T, features) / features.size
             style_features[layer] = gram
 
-    with tf.Graph().as_default(), tf.Session() as sess:
+    with tf.Graph().as_default(), tf.Session(config=session_conf) as sess:
         X_content = tf.placeholder(tf.float32, shape=batch_shape, name="X_content")
         X_pre = vgg.preprocess(X_content)
 
@@ -102,7 +111,7 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                 step = curr + batch_size
                 X_batch = np.zeros(batch_shape, dtype=np.float32)
                 for j, img_p in enumerate(content_targets[curr:step]):
-                   X_batch[j] = get_img(img_p, (256,256,3)).astype(np.float32)
+                    X_batch[j] = get_img(img_p, (256,256,3)).astype(np.float32)
 
                 iterations += 1
                 assert X_batch.shape[0] == batch_size
@@ -110,7 +119,6 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                 feed_dict = {
                    X_content:X_batch
                 }
-
                 train_step.run(feed_dict=feed_dict)
                 end_time = time.time()
                 delta_time = end_time - start_time
