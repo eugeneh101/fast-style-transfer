@@ -164,7 +164,7 @@ def main():
         if options.test:
             assert options.test_dir != False
             preds_path = '%s/%s_%s.png' % (options.test_dir,epoch,i)
-            if not options.slow:
+            if not options.slow: # if uses GPU, uses RAM that it doesn't have, so it's slow here
                 ckpt_dir = os.path.dirname(options.checkpoint_dir)
                 evaluate.ffwd_to_img(options.test,preds_path,
                                      options.checkpoint_dir)
