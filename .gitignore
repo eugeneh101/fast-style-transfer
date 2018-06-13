@@ -100,3 +100,9 @@ ENV/
 
 # PyCharm
 .idea
+
+# test directory
+test_dir
+
+# examples folder
+examples/
