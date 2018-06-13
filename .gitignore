@@ -100,9 +100,3 @@ ENV/
 
 # PyCharm
 .idea
-
-# checkpoint
-checkpoint
-
-# my testing directories for checkpoint style transfers
-test_dir*
