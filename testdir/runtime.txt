@@ -1,0 +1,12 @@
+/root/anaconda2/lib/python2.7/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Traceback (most recent call last):
+  File "style.py", line 178, in <module>
+    main()
+  File "style.py", line 120, in main
+    check_opts(options)
+  File "style.py", line 97, in check_opts
+    exists(opts.style, "style path not found!")
+  File "src/utils.py", line 24, in exists
+    assert os.path.exists(p), msg
+AssertionError: style path not found!
