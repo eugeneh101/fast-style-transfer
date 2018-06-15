@@ -8,7 +8,9 @@ pngs
 preds
 
 *.sw*
-data
+data/imagenet-vgg-verydeep-19.mat
+data/train2014/*
+data/train2014.zip
 __pycache__/
 *.py[cod]
 *$py.class
