@@ -15,5 +15,5 @@ for existing_image in existing_images:
 
 all_images = glob(os.path.join(large_training_set_dir, '*'))
 shuffle(all_images)
-for image_path in all_images[:50:]: # just need to train on 50 images for proof tht CPU and GPU training works
+for image_path in all_images[-50:]: # just need to train on 50 images for proof tht CPU and GPU training works
     copyfile(image_path, os.path.join(small_training_set_dir, os.path.basename(image_path)))
