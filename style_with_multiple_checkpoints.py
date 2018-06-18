@@ -2,7 +2,7 @@ from __future__ import print_function
 import sys, os, pdb
 sys.path.insert(0, 'src')
 import numpy as np, scipy.misc 
-from optimize import optimize
+from optimize_with_multiple_checkpoints import optimize
 from argparse import ArgumentParser
 from utils import save_img, get_img, exists, list_files
 import evaluate
@@ -153,7 +153,7 @@ def main():
     import time
     from datetime import datetime
     start_time = time.time()
-    for preds, losses, i, epoch in optimize(*args, **kwargs):
+    for preds, losses, i, epoch, checkpoint_number in optimize(*args, **kwargs):
         style_loss, content_loss, tv_loss, loss = losses
         delta_time, start_time = time.time() - start_time, time.time()        
         print('Current Time = {}; Time Elapsed = {}; Epoch = {}; Iteration = {}; Loss = {}'.format(
@@ -165,9 +165,9 @@ def main():
             assert options.test_dir != False
             preds_path = '%s/%s_%s.png' % (options.test_dir,epoch,i)
             if not options.slow: # if uses GPU, uses RAM that it doesn't have, so it's slow here
-                ckpt_dir = os.path.dirname(options.checkpoint_dir)
-                evaluate.ffwd_to_img(options.test,preds_path,
-                                     options.checkpoint_dir)
+                # ckpt_dir = os.path.dirname(options.checkpoint_dir)
+                actual_dir = os.path.join(options.checkpoint_dir, 'checkpoint_{}'.format(checkpoint_number))
+                evaluate.ffwd_to_img(options.test, preds_path, actual_dir)
             else:
                 save_img(preds_path, img)
     ckpt_dir = options.checkpoint_dir

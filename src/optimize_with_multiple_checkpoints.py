@@ -30,7 +30,6 @@ def optimize(content_targets, style_target, content_weight, style_weight,
     # removed tf.device('/gpu:0'), let system automatically detect available device; this is no longer true
     device_type, device_number = device_and_number.strip('/').split(':')
     if device_type == 'gpu': # /gpu:0 means use GPU 0; /gpu:1 means use GPU 1; /gpu2: means use GPU2; etc.
-        import os
         os.environ["CUDA_VISIBLE_DEVICES"] = device_number # starts at 0
         session_conf = tf.ConfigProto() # session_conf.gpu_options.allow_growth = True # test if growth slows down training
         # backprop doubles RAM usage
@@ -103,6 +102,7 @@ def optimize(content_targets, style_target, content_weight, style_weight,
         import random
         uid = random.randint(1, 100)
         print("UID: %s" % uid)
+        checkpoint_number = 0
         for epoch in range(epochs):
             num_examples = len(content_targets)
             iterations = 0
@@ -140,11 +140,18 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                     _style_loss,_content_loss,_tv_loss,_loss,_preds = tup
                     losses = (_style_loss, _content_loss, _tv_loss, _loss)
                     if slow:
-                       _preds = vgg.unprocess(_preds)
+                        _preds = vgg.unprocess(_preds)
                     else:
-                       saver = tf.train.Saver()
-                       res = saver.save(sess, save_path)
-                    yield(_preds, losses, iterations, epoch)
+                        saver = tf.train.Saver()
+                        parent_dir = os.path.dirname(save_path)
+                        checkpoint_number += 1
+                        actual_dir = os.path.join(parent_dir, "checkpoint_{}".format(checkpoint_number))
+                        if not os.path.exists(actual_dir):
+                            os.mkdir(actual_dir)
+                        filename = os.path.basename(save_path)
+                        actual_path = os.path.join(actual_dir, filename) ### hard coded directory name logic
+                        res = saver.save(sess, actual_path)
+                    yield _preds, losses, iterations, epoch, checkpoint_number
 
 def _tensor_size(tensor):
     from operator import mul
