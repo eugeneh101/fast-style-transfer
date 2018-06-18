@@ -4,6 +4,7 @@ import vgg, pdb, time
 import tensorflow as tf, numpy as np, os
 import transform
 from utils import get_img
+import os
 
 STYLE_LAYERS = ('relu1_1', 'relu2_1', 'relu3_1', 'relu4_1', 'relu5_1')
 CONTENT_LAYER = 'relu4_2'
@@ -30,14 +31,14 @@ def optimize(content_targets, style_target, content_weight, style_weight,
     # removed tf.device('/gpu:0'), let system automatically detect available device; this is no longer true
     device_type, device_number = device_and_number.strip('/').split(':')
     if device_type == 'gpu': # /gpu:0 means use GPU 0; /gpu:1 means use GPU 1; /gpu2: means use GPU2; etc.
-        import os
         os.environ["CUDA_VISIBLE_DEVICES"] = device_number # starts at 0
         session_conf = tf.ConfigProto() # session_conf.gpu_options.allow_growth = True # test if growth slows down training
         # backprop doubles RAM usage
         # for training, takes 2.7 seconds/iter for batch size=20
         # for evaluating loss and saving checkpoint, takes 2.6 seconds (depending on size of test image) using 1000x700 px image 
     else: # /cpu:0 means use all CPUs; /cpu:1 means use 1 CPU; /cpu:2 means use 2 CPUs; etc.
-        session_conf = tf.ConfigProto(intra_op_parallelism_threads=int(device_number))
+        os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+        session_conf = tf.ConfigProto(intra_op_parallelism_threads=int(device_number), device_count={"GPU": 0})
     with tf.Graph().as_default(), tf.Session(config=session_conf) as sess: # precompute style features
         style_image = tf.placeholder(tf.float32, shape=style_shape, name='style_image')
         style_image_pre = vgg.preprocess(style_image)
