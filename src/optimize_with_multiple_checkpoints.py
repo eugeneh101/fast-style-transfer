@@ -151,6 +151,8 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                         filename = os.path.basename(save_path)
                         actual_path = os.path.join(actual_dir, filename) ### hard coded directory name logic
                         res = saver.save(sess, actual_path)
+                        if os.path.isfile(actual_path + '.meta'): # delete fns.ckpt.meta file, which takes 160 MBs
+                            os.remove(actual_path + '.meta')
                     yield _preds, losses, iterations, epoch, checkpoint_number
 
 def _tensor_size(tensor):
