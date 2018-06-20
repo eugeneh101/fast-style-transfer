@@ -89,7 +89,7 @@ def build_parser():
                         metavar='LEARNING_RATE', default=LEARNING_RATE)
     
     parser.add_argument('--device', type=str,
-                        dest='device_and_number',
+                        dest='device',
                         help='device and its associated GPU number or CPU count',
                         metavar='DEVICE', required=True)
     
@@ -151,7 +151,7 @@ def _run_model(options):
         "batch_size":options.batch_size,
         "save_path":os.path.join(options.checkpoint_dir,'fns.ckpt'),
         "learning_rate":options.learning_rate,
-        "device_and_number":options.device_and_number
+        "device_and_number":options.device
     }
 
     if options.slow:
@@ -203,13 +203,13 @@ def _run_model(options):
     
 
 class ArgumentObject(object):
-    def __init__(self, style, checkpoint_dir, device_and_number, test, test_dir, 
+    def __init__(self, style, checkpoint_dir, device, test, test_dir, 
                  epochs, checkpoint_iterations, batch_size, max_runtime_in_minutes,
                  log_file, train_path, vgg_path, content_weight, style_weight, 
                  tv_weight, learning_rate, slow):
         self.style = style
         self.checkpoint_dir = checkpoint_dir
-        self.device_and_number = device_and_number
+        self.device = device
         self.test = test
         self.test_dir = test_dir
         self.epochs = epochs
@@ -227,7 +227,7 @@ class ArgumentObject(object):
         
 def create_checkpoints(
         # mandatory arguments
-        style, checkpoint_dir, device_and_number,
+        style, checkpoint_dir, device,
 
         # useful argments
         test=False, test_dir=False, epochs=NUM_EPOCHS, 
@@ -239,7 +239,7 @@ def create_checkpoints(
         train_path=TRAIN_PATH, vgg_path=VGG_PATH, content_weight=CONTENT_WEIGHT, 
         style_weight=STYLE_WEIGHT, tv_weight=TV_WEIGHT, learning_rate=LEARNING_RATE, slow=False
 ):
-    options = ArgumentObject(style, checkpoint_dir, device_and_number, test, 
+    options = ArgumentObject(style, checkpoint_dir, device, test, 
             test_dir, epochs, checkpoint_iterations, batch_size, 
              max_runtime_in_minutes, log_file, train_path, vgg_path, 
              content_weight, style_weight, tv_weight, learning_rate, slow)
