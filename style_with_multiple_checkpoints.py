@@ -96,7 +96,7 @@ def build_parser():
     parser.add_argument('--max-runtime-in-minutes', type=int,
                         dest='max_runtime_in_minutes',
                         help='maximum runtime in minutes before automatic shut down',
-                        metavar='MAX_RUNTIME_IN_MINUTES', default=None)
+                        metavar='MAX_RUNTIME_IN_MINUTES', default=float('inf'))
 
     parser.add_argument('--log_file', type=str,
                         dest='log_file',
@@ -170,11 +170,11 @@ def _run_model(options):
     ]
 
     start_time = time.time()
-    shutdown_time = (start_time +  options.max_runtime_in_minutes * 60 
-                     if options.max_runtime_in_minutes else float('inf'))
+    shutdown_time = start_time +  options.max_runtime_in_minutes * 60
     if options.log_file:
         log_file_ = open(options.log_file, 'w')
         sys.stdout = log_file_
+        sys.stderr = log_file_
     for preds, losses, i, epoch, checkpoint_number in optimize(*args, **kwargs):
         style_loss, content_loss, tv_loss, loss = losses
         delta_time, start_time = time.time() - start_time, time.time()        
@@ -223,7 +223,7 @@ class ArgumentObject(object):
         self.style_weight = style_weight
         self.tv_weight = tv_weight
         self.learning_rate = learning_rate
-        self.slow = slow    
+        self.slow = slow
         
 def create_checkpoints(
         # mandatory arguments
@@ -232,7 +232,7 @@ def create_checkpoints(
         # useful argments
         test=False, test_dir=False, epochs=NUM_EPOCHS, 
         checkpoint_iterations=CHECKPOINT_ITERATIONS, batch_size=BATCH_SIZE,
-        max_runtime_in_minutes=None,
+        max_runtime_in_minutes=float('inf'),
         log_file=None,
 
         # not useful arguments you probably shouldn't touch
