@@ -98,7 +98,7 @@ def build_parser():
                         help='maximum runtime in minutes before automatic shut down',
                         metavar='MAX_RUNTIME_IN_MINUTES', default=float('inf'))
 
-    parser.add_argument('--log_file', type=str,
+    parser.add_argument('--log-file', type=str,
                         dest='log_file',
                         help='file you want to write the print statements to',
                         metavar='LOG_FILE', default=None)
@@ -193,7 +193,7 @@ def _run_model(options):
             else:
                 save_img(preds_path, img)
         if time.time() > shutdown_time: # automatic shut down
-            print('Ran for maximum runtime in minutes. Now shutting down time.')
+            print('\n\nRan for maximum runtime in minutes. Now shutting down time.')
             break
     ckpt_dir = options.checkpoint_dir
     cmd_text = 'python evaluate.py --checkpoint %s ...' % ckpt_dir
